@@ -20,15 +20,15 @@ base_weight_dirs = [
 # Automatically add 'best.pt' and 'last.pt' for each base directory
 weights_paths = []
 for base_dir in base_weight_dirs:
-    weights_paths.append(os.path.join(base_dir, 'best.pt'))
-    weights_paths.append(os.path.join(base_dir, 'last.pt'))
+    weight_files = [f for f in os.listdir(base_dir) if f.endswith('.pt')]
+    for weight_file in weight_files:
+        weights_paths.append(os.path.join(base_dir, weight_file))
 
-# Define the image paths
-image_paths = [
-    '/home/sdz/MRE FOTO UDARA JPG/mre 1 blok.jpg',
-    '/home/sdz/MRE FOTO UDARA JPG/mre stngh blok.jpg'
-    # Add more image paths here
-]
+# Define the image directory
+image_dir = '/home/sdz/MRE FOTO UDARA JPG/'
+
+# List all image files in the image directory
+image_files = [os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.lower().endswith(('.jpg', '.jpeg', '.png', '.bmp', '.gif'))]
 
 # Define the minimum and maximum image size
 min_imgsz = 352  # Minimum size based on YOLOv5 requirements
@@ -66,8 +66,8 @@ def perform_inference(weight_path, image_path, image_size, iou_thresh, conf_leve
 
     return detections_per_class, total_detections
 
-# Loop through each weight, image, IoU threshold, and confidence level, perform inference, and append results to CSV
-for image_path in image_paths:
+# Loop through each image, each weight, IoU threshold, and confidence level, perform inference, and append results to CSV
+for image_path in image_files:
     csv_path = os.path.splitext(image_path)[0] + ".csv"
     with open(csv_path, mode='a', newline='') as csv_file:
         fieldnames = ['model', 'imgsz', 'iou', 'conf'] + [f'class_{cls}' for cls in range(2)] + ['total_detections', 'timestamp']
